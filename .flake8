@@ -8,7 +8,8 @@ exclude =
     dist,
     minisculus.egg-info,
     test-results,
-    noxfile.py
+    noxfile.py,
+    tests
 max-line-length = 80
 select = B,B9,B950,BLK,C,D,DAR,E,F,I,S,T4,W
 ignore = E203, E501, W503, D107
