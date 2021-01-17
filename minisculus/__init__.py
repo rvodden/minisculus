@@ -8,5 +8,6 @@ except PackageNotFoundError:
     pass
 
 from minisculus._mark_one import MarkOne
+from minisculus._mark_two import MarkTwo
 
-__all__ = ["MarkOne"]
+__all__ = ["MarkOne", "MarkTwo"]
