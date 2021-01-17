@@ -10,7 +10,7 @@ exclude =
     test-results,
     noxfile.py
 max-line-length = 80
-select = B,B9,B950,BLK,C,D,DAR,E,F,I,S,W
+select = B,B9,B950,BLK,C,D,DAR,E,F,I,S,T4,W
 ignore = E203, E501, W503, D107
 application-import-names = minisculus,tests
 import-order-style = google
