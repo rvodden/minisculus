@@ -1,4 +1,4 @@
-from hypothesis import assume, given
+from hypothesis import given
 from hypothesis.strategies import integers, text
 from pytest import raises
 
@@ -26,19 +26,17 @@ class TestMarkTwo:
         assert under_test.encode_string("abc") == "STU"
 
     @given(_wheels(), _wheels())
-    def test_valid_wheel_settings(self, wheel_one, wheel_two):
-        """Run the constructor, and assert that the value of the wheel is correct."""
-        under_test: MarkTwo = MarkTwo(wheel_one, wheel_two)
-        assert under_test.wheel_one == wheel_one
-        assert under_test.wheel_two == wheel_two
-
-    @given(integers(), integers())
-    def test_invalid_wheel_settings(self, wheel_one, wheel_two):
-        # at least one wheel must be invalid
-        assume(not 0 <= wheel_one <= 9 or not 0 <= wheel_two <= 9)
-
-        with raises(ValueError):
-            MarkTwo(wheel_one, wheel_two)
+    def test_wheel_settings(self, wheel_one, wheel_two):
+        if 0 <= wheel_one <= 9 and 0 <= wheel_two <= 9:
+            # if wheel setting are valid
+            # check no errors are thrown
+            under_test = MarkTwo(wheel_one, wheel_two)
+            assert type(under_test) is MarkTwo
+        else:
+            # if wheel settings are invalid
+            # check that the exception is raised
+            with raises(ValueError):
+                MarkTwo(wheel_one, wheel_two)
 
     @given(_wheels(), _wheels(), text(alphabet=MarkTwo._alphabet, min_size=2))
     def test_encode_throws_exception_when_string_is_too_long(

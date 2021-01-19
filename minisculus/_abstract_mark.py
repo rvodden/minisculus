@@ -80,13 +80,22 @@ class AbstractMark(ABC):
     ]
 
     @abstractmethod
+    def _process_value(self, value: int) -> int:
+        pass
+
     def encode(self, value: str) -> str:
         """Encodes a provided single character.
 
         Args:
             value: the character to encode
+
+        Returns:
+            the encoded character.
         """
-        pass
+        self._validate_single_character(value)
+        idx: int = self._alphabet.index(value)
+        new_idx: int = self._process_value(idx) % len(self._alphabet)
+        return self._alphabet[new_idx]
 
     @validate_arguments
     def encode_string(self, string: str) -> str:

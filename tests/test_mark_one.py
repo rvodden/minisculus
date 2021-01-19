@@ -1,12 +1,12 @@
-from hypothesis import assume, given
-from hypothesis.strategies import integers, text
+from hypothesis import given
+from hypothesis.strategies import integers, text, SearchStrategy
 from pytest import raises
 
 from minisculus import MarkOne
 
 
-def _wheels():
-    return integers(min_value=0, max_value=9)
+def _wheel_values() -> SearchStrategy[int]:
+    return integers(max_value=9, min_value=0)
 
 
 class TestMarkOne:
@@ -24,19 +24,7 @@ class TestMarkOne:
         assert under_test.encode("a") == "f"
         assert under_test.encode("c") == "h"
 
-    @given(_wheels())
-    def test_valid_wheel_settings(self, value):
-        """Run the constructor, and assert that the value of the wheel is correct."""
-        under_test: MarkOne = MarkOne(value)
-        assert under_test.wheel == value
-
-    @given(integers())
-    def test_invalid_wheel_settings(self, value):
-        assume(not 0 <= value <= 9)  # don't run on valid values
-        with raises(ValueError):
-            MarkOne(value)
-
-    @given(_wheels(), text(alphabet=MarkOne._alphabet, min_size=2))
+    @given(_wheel_values(), text(alphabet=MarkOne._alphabet, min_size=2))
     def test_encode_throws_exception_when_string_is_too_long(
         self, wheel: int, string: str
     ):
@@ -44,7 +32,7 @@ class TestMarkOne:
         with raises(ValueError):
             under_test.encode(string)
 
-    @given(_wheels(), text(alphabet=MarkOne._alphabet, min_size=1, max_size=1))
+    @given(_wheel_values(), text(alphabet=MarkOne._alphabet, min_size=1, max_size=1))
     def test_encode_returns_character_which_decodes_correctly(
         self, wheel: int, string: str
     ):
@@ -52,7 +40,7 @@ class TestMarkOne:
         encoded_value: str = under_test.encode(string)
         assert string == TestMarkOne._decode(wheel, encoded_value)
 
-    @given(_wheels(), text(alphabet=MarkOne._alphabet))
+    @given(_wheel_values(), text(alphabet=MarkOne._alphabet))
     def test_encode_string_returns_string_which_decodes_correctly(
         self, wheel: int, string: str
     ):

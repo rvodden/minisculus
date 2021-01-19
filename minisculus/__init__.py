@@ -9,5 +9,6 @@ except PackageNotFoundError:
 
 from minisculus._mark_one import MarkOne
 from minisculus._mark_two import MarkTwo
+from minisculus._single_processor_mark import SingleProcessorMark
 
-__all__ = ["MarkOne", "MarkTwo"]
+__all__ = ["MarkOne", "MarkTwo", "SingleProcessorMark"]
