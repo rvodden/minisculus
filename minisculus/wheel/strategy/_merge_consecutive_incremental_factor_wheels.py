@@ -1,6 +1,6 @@
 from typing import List
 
-from minisculus.wheel import AbstractWheel, IncrementalFactorWheel, IncrementalWheel
+from minisculus.wheel import AbstractWheel, IncrementalFactorWheel
 from minisculus.wheel.strategy._abstract_strategy import AbstractStrategy
 
 
@@ -61,7 +61,7 @@ class MergeConsecutiveIncrementalFactorWheels(AbstractStrategy):
         return new_wheels
 
     @classmethod
-    def _combine(cls, wheels: List[IncrementalFactorWheel]) -> IncrementalWheel:
+    def _combine(cls, wheels: List[IncrementalFactorWheel]) -> IncrementalFactorWheel:
         """Combines several ``IncrementalFactorWheels`` into a single (bigger) wheel.
 
         Args:
@@ -71,13 +71,13 @@ class MergeConsecutiveIncrementalFactorWheels(AbstractStrategy):
             a single wheel which does the same job as the original list.
         """
         if len(wheels) == 1:
-            return cls._convert_to_incremental_wheel(wheels[0])
+            return cls._convert_to_factor_of_one(wheels[0])
 
         # neat little bit of recursion to smash these all together
         tail = cls._combine(wheels[:-1])
         head = wheels[-1]
 
-        # tail is always an IncrementalWheel so no need to worry about the tail factor
+        # tail is always has a factor of 1 so no need to worry about the tail factor
         if head.factor > 0:
             min_value = tail.min_value + head.min_value * head.factor
             max_value = tail.max_value + head.max_value * head.factor
@@ -85,18 +85,26 @@ class MergeConsecutiveIncrementalFactorWheels(AbstractStrategy):
             min_value = tail.min_value + head.max_value * head.factor
             max_value = tail.max_value + head.min_value * head.factor
 
-        return IncrementalWheel(min_value=min_value, max_value=max_value).set_value(
-            tail.value + head.value * head.factor
-        )
+        return IncrementalFactorWheel(
+            min_value=min_value, max_value=max_value
+        ).set_value(tail.value + head.value * head.factor)
 
     @staticmethod
-    def _convert_to_incremental_wheel(
+    def _convert_to_factor_of_one(
         wheel: IncrementalFactorWheel,
-    ) -> IncrementalWheel:
+    ) -> IncrementalFactorWheel:
+        """Manipulates wheel settings so the factor is 1 without altering function.
+
+        Args:
+            wheel: the wheel to be (copied and) manipulated.
+
+        Returns:
+            a copy of the wheel with equivalent function and a factor of 1.
+        """
         min_value = wheel.factor * wheel.min_value
         max_value = wheel.factor * wheel.max_value
         if min_value > max_value:
             min_value, max_value = max_value, min_value
-        return IncrementalWheel(min_value, max_value).set_value(
+        return IncrementalFactorWheel(min_value, max_value).set_value(
             wheel.factor * wheel.value
         )

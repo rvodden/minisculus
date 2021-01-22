@@ -1,10 +1,11 @@
 from typing import List
 
-from minisculus.wheel._abstract_processor import AbstractProcessor
+from pydantic import validate_arguments
+
 from minisculus.wheel._abstract_wheel import AbstractWheel
 
 
-class WheelChain(AbstractProcessor):
+class WheelChain:
     """Processes indexes using a chain of wheels."""
 
     _wheels: List[AbstractWheel]
@@ -12,21 +13,22 @@ class WheelChain(AbstractProcessor):
     def __init__(self, wheels: List[AbstractWheel]):
         self._wheels = wheels
 
-    def process(self, idx: int) -> int:
+    @validate_arguments
+    def process(self, idxs: List[int]) -> int:
         """This is the encryption function.
 
         Args:
-            idx: the index to be encrypted.
+            idxs: the list of indexes to be encrypted.
 
         Returns:
             the encrypted index.
         """
-        new_idx = idx
         for wheel in self._wheels:
-            new_idx = wheel.process(new_idx)
-        return new_idx
+            idxs.append(wheel.process(idxs))
+        return idxs[-1]
 
     @property
+    @validate_arguments
     def wheels(self) -> List[AbstractWheel]:
         """Returns the wheels which constitutes the WheelChain.
 
@@ -36,6 +38,7 @@ class WheelChain(AbstractProcessor):
         return self._wheels
 
     @property
+    @validate_arguments
     def values(self) -> List[int]:
         """Returns a list of the values of each of the wheels.
 

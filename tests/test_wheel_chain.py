@@ -3,7 +3,7 @@ from typing import List
 from hypothesis import given
 from hypothesis.strategies import integers, lists
 
-from minisculus.wheel import AbstractWheel, IncrementalWheel, WheelChain
+from minisculus.wheel import AbstractWheel, IncrementalFactorWheel, WheelChain
 
 
 class TestWheelChain:
@@ -11,6 +11,6 @@ class TestWheelChain:
     def test_sequence_of_incremental_wheels(self, values: List[int], index: int):
         wheels: List[AbstractWheel] = []
         for value in values:
-            wheels.append(IncrementalWheel().set_value(value))
+            wheels.append(IncrementalFactorWheel().set_value(value))
         under_test = WheelChain(wheels)
-        assert under_test.process(index) == index + sum(values)
+        assert under_test.process([index]) == index + sum(values)
