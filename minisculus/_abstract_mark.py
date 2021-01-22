@@ -1,7 +1,9 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 from typing import List
 
 from pydantic import validate_arguments
+
+from minisculus.wheel import AbstractWheel, OptimizedWheelChain
 
 
 class AbstractMark(ABC):
@@ -79,14 +81,30 @@ class AbstractMark(ABC):
         " ",
     ]
 
-    @abstractmethod
+    _wheel_chain: OptimizedWheelChain
+
+    def __init__(self, wheels: List[AbstractWheel]):
+        self._wheel_chain = OptimizedWheelChain(wheels)
+
+    @validate_arguments
+    def _process_value(self, idx: int) -> int:
+        new_position: int = self._wheel_chain.process([idx])
+        return new_position
+
+    @validate_arguments()
     def encode(self, value: str) -> str:
         """Encodes a provided single character.
 
         Args:
             value: the character to encode
+
+        Returns:
+            the encoded character.
         """
-        pass
+        self._validate_single_character(value)
+        idx: int = self._alphabet.index(value)
+        new_idx: int = self._process_value(idx) % len(self._alphabet)
+        return self._alphabet[new_idx]
 
     @validate_arguments
     def encode_string(self, string: str) -> str:

@@ -7,7 +7,8 @@ try:
 except PackageNotFoundError:
     pass
 
+from minisculus._mark_four import MarkFour
 from minisculus._mark_one import MarkOne
 from minisculus._mark_two import MarkTwo
 
-__all__ = ["MarkOne", "MarkTwo"]
+__all__ = ["MarkOne", "MarkTwo", "MarkFour"]

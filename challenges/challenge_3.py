@@ -3,17 +3,17 @@ import json
 from requests import put
 from pprint import PrettyPrinter
 
-from minisculus import MarkTwo
+from minisculus import MarkFour
 
-SUBMISSION_URL: str = "http://minisculuschallenge.com/2077f244def8a70e5ea758bd8352fcd8"
+SUBMISSION_URL: str = "http://minisculuschallenge.com/36d80eb0c50b49a509b49f2424e8c805"
 
 pprint = PrettyPrinter().pprint
 
 
 def main():
-    mark_two: MarkTwo = MarkTwo(9, 3)
-    encoded_string: str = mark_two.encode_string(
-        "The Desert Fox will move 30 tanks " "to Calais at dawn"
+    mark_four: MarkFour = MarkFour(4, 7)
+    encoded_string: str = mark_four.encode_string(
+        "The white cliffs of Alghero are visible at night"
     )
     payload = {"answer": encoded_string}
 
