@@ -55,7 +55,6 @@ Class Diagram
         MarkFour --|> Encoder
         Encoder "1" --* "1" WheelChain
         WheelChain "1" --* "1..*" Wheel
-        OptimizedWheelChain --|> WheelChain
         SimpleWheel --|> Wheel
         StatefulWheel --|> SimpleWheel
 
@@ -68,7 +67,6 @@ Class               Concern
 Wheel               Encodes a single index value.
 WheelChain          Passes an index to a list of wheels in sequence for encoding.
 SimpleWheel         A wheel which encodes an index by adding the wheel value multiplied by a factor.
-OptimizedWheelChain The operation of consecutive ``SimpleWheel``s can be exactly matched by a single SimpleWheel of a different size and with a factor of 1 (if negative values are permitted).
 State Wheel         An evolution of the Simple Wheel which, subsequent to any encoding operation sets the value of the wheel to the value of the index (at the start of the wheel chain) which was encoded.
 Encoder             Breaks a string into a series of indexes to be processed by a wheel chain. It then reconstructs the sequence of encoded indexes back into a string.
 =================== =======
