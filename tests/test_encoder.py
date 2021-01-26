@@ -5,7 +5,7 @@ from hypothesis.strategies import data, lists, text, DataObject
 from pytest import raises
 
 from minisculus import Encoder
-from tests.search_strategies import wheels
+from tests.search_strategies import wheels, valid_characters
 
 
 class TestEncoder:
@@ -35,7 +35,7 @@ class TestEncoder:
         assert len(encoded_string) == len(string)
         assert string == decoder.decode(encoded_string)
 
-    @given(data(), text(alphabet=Encoder._alphabet, min_size=1, max_size=1))
+    @given(data(), valid_characters())
     def test_encode_character_returns_character_which_decodes_correctly(
         self, data, string: str
     ):

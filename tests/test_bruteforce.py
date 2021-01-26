@@ -1,21 +1,20 @@
-from datetime import timedelta
-
 from hamcrest import assert_that, is_
 from hypothesis import given, settings
 from hypothesis.strategies import data, text, DataObject, integers
 
 from minisculus import Encoder, MarkFour
 from minisculus import BruteForce
+from tests.search_strategies import valid_wheel_values
 
 
 class TestBruteForce:
 
     # This test is slow, so up the deadline and crank the examples down for CI.
-    @settings(deadline=timedelta(milliseconds=500), max_examples=10)
+    @settings(deadline=None, max_examples=10)
     @given(
         text(min_size=10, max_size=256, alphabet=Encoder._alphabet),
-        integers(min_value=0, max_value=9),
-        integers(min_value=0, max_value=9),
+        valid_wheel_values(),
+        valid_wheel_values(),
         data(),
     )
     def test_brute_force(

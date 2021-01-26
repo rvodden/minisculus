@@ -4,8 +4,8 @@ from hypothesis import given
 from hypothesis.strategies import data, integers, DataObject
 from pytest import raises
 
-from minisculus import Encoder
 from minisculus.wheel import Wheel
+from tests.search_strategies import valid_indexes, valid_factors
 
 
 class WheelTests(ABC):
@@ -30,11 +30,7 @@ class WheelTests(ABC):
             with raises(ValueError):
                 under_test.set_factor(factor)
 
-    @given(
-        integers(min_value=-9, max_value=9).filter(lambda x: x != 0),
-        integers(min_value=0, max_value=len(Encoder._alphabet)),
-        data(),
-    )
+    @given(valid_factors(), valid_indexes(), data())
     def test_process_returns_value_which_unprocesses_correctly(
         self, factor: int, idx: int, data
     ):
@@ -50,12 +46,12 @@ class WheelTests(ABC):
         # grab a valid wheel value
         assert idx == under_test.decode(under_test.encode(idx))
 
-    @given(integers(min_value=0, max_value=69), data())
+    @given(valid_indexes(), data())
     def test_encode_valid_character(self, index: int, data: DataObject):
         under_test = self.build_wheel(data.draw)
         assert under_test.encode(index) == index + under_test.value * under_test.factor
 
-    @given(integers(min_value=0, max_value=69), data())
+    @given(valid_indexes(), data())
     def test_decode_valid_character(self, index: int, data: DataObject):
         under_test = self.build_wheel(data.draw)
         assert under_test.encode(index) == index - under_test.value * under_test.factor

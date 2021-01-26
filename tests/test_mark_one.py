@@ -1,13 +1,12 @@
-from hypothesis.strategies import integers
-
 from minisculus import MarkOne, Encoder
+from tests.search_strategies import valid_wheel_values
 from tests.test_encoder import TestEncoder
 
 
 class TestMarkOne(TestEncoder):
     @staticmethod
     def build_encoder(draw) -> Encoder:
-        wheel1_value = draw(integers(min_value=0, max_value=9))
+        wheel1_value = draw(valid_wheel_values())
         return MarkOne(wheel1_value)
 
     def test_example(self):

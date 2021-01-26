@@ -1,5 +1,6 @@
-from hypothesis.strategies import SearchStrategy, integers, composite, one_of
+from hypothesis.strategies import SearchStrategy, integers, composite, one_of, text
 
+from minisculus import Encoder
 from minisculus.wheel import SimpleWheel, StatefulWheel, Wheel
 
 
@@ -24,3 +25,19 @@ def stateful_wheels(draw):
 
 def wheels() -> SearchStrategy[Wheel]:
     return one_of(simple_wheels(), stateful_wheels())
+
+
+def valid_wheel_values() -> SearchStrategy[int]:
+    return integers(min_value=0, max_value=9)
+
+
+def valid_indexes() -> SearchStrategy[int]:
+    return integers(min_value=0, max_value=len(Encoder._alphabet))
+
+
+def valid_factors() -> SearchStrategy[int]:
+    return integers(min_value=-9, max_value=9).filter(lambda x: x != 0)
+
+
+def valid_characters() -> SearchStrategy[str]:
+    return text(alphabet=Encoder._alphabet, min_size=1, max_size=1)
