@@ -2,34 +2,57 @@ from typing import List
 
 from pydantic import validate_arguments
 
-from minisculus.wheel._abstract_wheel import AbstractWheel
+from minisculus.wheel._wheel import Wheel
 
 
 class WheelChain:
     """Processes indexes using a chain of wheels."""
 
-    _wheels: List[AbstractWheel]
+    _wheels: List[Wheel]
 
-    def __init__(self, wheels: List[AbstractWheel]):
+    def __init__(self, wheels: List[Wheel]):
+        self._validate_wheels(wheels)
         self._wheels = wheels
 
     @validate_arguments
-    def process(self, idxs: List[int]) -> int:
-        """This is the encryption function.
+    def encode(self, idx: int) -> int:
+        """This is the encoding function.
 
         Args:
-            idxs: the list of indexes to be encrypted.
+            idx: the list of index to encode.
 
         Returns:
-            the encrypted index.
+            the encoded index.
         """
+        idxs = [idx]
         for wheel in self._wheels:
-            idxs.append(wheel.process(idxs))
+            idxs.append(wheel.encode(idxs[-1]))
+
+        for wheel in self._wheels:
+            wheel.post_encode(idxs)
+        return idxs[-1]
+
+    @validate_arguments()
+    def decode(self, idx: int) -> int:
+        """This is the decoding function.
+
+        Args:
+            idx: the list of indexes to be decoded.
+
+        Returns:
+            the decoded index.
+        """
+        idxs = [idx]
+        for wheel in self._wheels:
+            idxs.append(wheel.decode(idxs[-1]))
+
+        for wheel in self._wheels:
+            wheel.post_decode(idxs)
         return idxs[-1]
 
     @property
     @validate_arguments
-    def wheels(self) -> List[AbstractWheel]:
+    def wheels(self) -> List[Wheel]:
         """Returns the wheels which constitutes the WheelChain.
 
         Returns:
@@ -46,3 +69,11 @@ class WheelChain:
             list of wheels.
         """
         return [w.value for w in self._wheels]
+
+    @staticmethod
+    def _validate_wheels(wheels: List[Wheel]) -> None:
+        l: int = len(wheels)
+        if l > 10:
+            raise ValueError(
+                f"WheelChain can not have more than 10 wheels. {l} provided."
+            )

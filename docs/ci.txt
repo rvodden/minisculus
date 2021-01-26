@@ -1,0 +1,81 @@
+===================================
+Building and Continuous Integration
+===================================
+
+************
+Coding Style
+************
+
+The code adheres to the `Black`_ style guidelines. In addition the following rules have been adhered to:
+
+* All python files containing code must be prefixed with ``_`` to mark them as private modules. This ``__init__.py`` can then be used to control which classes are exposed and which are not. Classes which are not exposed should also be prefixed with ``_``.
+
+
+************
+Dependencies
+************
+
+Dependencies are managed through ``poetry``_ using ``pyproject.toml`` as specified
+in `PEP518`_. As this is still a relatively new approach a minimum build environment is specified in ``requirements.txt`` from which the build chain can be bootdstrapped.
+
+
+*****
+Build
+*****
+
+As mentioned in the previous section, build is completed using ``poetry``.
+``nox`` is used a build orchestration tool which facilitates testing in
+clean environments. To get started, create a new virtual environment using
+the tool of you choice, install the prerequisits from ``requirements.txt``
+and run ``noz``. For example using virtualenv:
+
+
+.. code-block::
+
+    > virtualenv .venv
+    created virtual environment CPython3.8.6.final.0-64 in 383ms
+      creator CPython3Posix(dest=/Users/users/minisculus/.venv, clear=False, global=False)
+      seeder FromAppData(download=False, pip=bundle, setuptools=bundle, wheel=bundle, via=copy, app_data_dir=/Users/user/Library/Application Support/virtualenv)
+        added seed packages: pip==20.3.3, setuptools==51.0.0, wheel==0.36.2
+      activators BashActivator,CShellActivator,FishActivator,PowerShellActivator,PythonActivator,XonshActivator
+
+    > . .venv/bin/activate
+    (.venv) > pip install -r requirements.txt
+    << redacted for brevity >>
+
+    (.venv) > nox
+    nox > Running session lint-3.8
+    << redacted for brevity >>
+
+Nox has 5 sessions configured, most of which need no further explanation. Testing
+is expanded on below.
+
+* black
+    Reformats code to be in black.
+* bdd
+    Runs the scenarios for the project.
+* docs
+    Build the documentation.
+* lint
+    Lints the code.
+* tests
+    Runs the test harness.
+* safety
+    Checks libraries for known vulnerabilities.
+
+
+*******
+Testing
+*******
+
+The test hierarchy mirrors the class hierarchy. Each abstract class (i.e. those inheriting directly from ``ABC``) have a test suite implemented in a test class which is also abstract. These abstract test clases should test the contract presented by the abstract class. Implementation test classes can inherit from these abstract test classes which tests them against the contract without repetition.
+
+
+
+
+**********
+References
+**********
+
+.. _`Black`: https://github.com/psf/black
+.. _`PEP518`: https://www.python.org/dev/peps/pep-0518/

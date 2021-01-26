@@ -12,7 +12,7 @@ pprint = PrettyPrinter().pprint
 
 def main():
     mark_one: MarkOne = MarkOne(6)
-    encoded_string: str = mark_one.encode_string("Strong NE Winds!")
+    encoded_string: str = mark_one.encode("Strong NE Winds!")
     payload = {"answer": encoded_string}
 
     response = put(SUBMISSION_URL, data=json.dumps(payload).encode("UTF-8"))

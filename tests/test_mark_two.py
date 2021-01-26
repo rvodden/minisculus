@@ -1,15 +1,21 @@
-from hypothesis import given
-from hypothesis.strategies import integers, text
-from pytest import raises
+from hypothesis.strategies import integers
 
-from minisculus import MarkTwo
+from minisculus import MarkTwo, Encoder
+from tests.search_strategies import valid_wheel_values
+from tests.test_encoder import TestEncoder
 
 
 def _wheels():
     return integers(min_value=0, max_value=9)
 
 
-class TestMarkTwo:
+class TestMarkTwo(TestEncoder):
+    @staticmethod
+    def build_encoder(draw) -> Encoder:
+        wheel1_value = draw(valid_wheel_values())
+        wheel2_value = draw(valid_wheel_values())
+        return MarkTwo(wheel1_value, wheel2_value)
+
     def test_example(self):
         """This tests the example in the text.
 
@@ -23,74 +29,4 @@ class TestMarkTwo:
         """
         under_test = MarkTwo(2, 5)
 
-        assert under_test.encode_string("abc") == "STU"
-
-    @given(_wheels(), _wheels())
-    def test_wheel_settings(self, wheel_one, wheel_two):
-        if 0 <= wheel_one <= 9 and 0 <= wheel_two <= 9:
-            # if wheel setting are valid
-            # check no errors are thrown
-            under_test = MarkTwo(wheel_one, wheel_two)
-            assert type(under_test) is MarkTwo
-        else:
-            # if wheel settings are invalid
-            # check that the exception is raised
-            with raises(ValueError):
-                MarkTwo(wheel_one, wheel_two)
-
-    @given(_wheels(), _wheels(), text(alphabet=MarkTwo._alphabet, min_size=2))
-    def test_encode_throws_exception_when_string_is_too_long(
-        self, wheel_one: int, wheel_two: int, string: str
-    ):
-        under_test: MarkTwo = MarkTwo(wheel_one, wheel_two)
-        with raises(ValueError):
-            under_test.encode(string)
-
-    @given(
-        _wheels(), _wheels(), text(alphabet=MarkTwo._alphabet, min_size=1, max_size=1)
-    )
-    def test_encode_returns_character_which_decodes_correctly(
-        self, wheel_one: int, wheel_two: int, string: str
-    ):
-        under_test: MarkTwo = MarkTwo(wheel_one, wheel_two)
-        encoded_value: str = under_test.encode(string)
-        assert string == TestMarkTwo._decode(wheel_one, wheel_two, encoded_value)
-
-    @given(_wheels(), _wheels(), text(alphabet=MarkTwo._alphabet))
-    def test_encode_string_returns_string_which_decodes_correctly(
-        self, wheel_one: int, wheel_two: int, string: str
-    ):
-        under_test: MarkTwo = MarkTwo(wheel_one, wheel_two)
-        encoded_value: str = under_test.encode_string(string)
-        assert string == self._decode_string(wheel_one, wheel_two, encoded_value)
-
-    @staticmethod
-    def _decode(wheel_one: int, wheel_two: int, value: str):
-        """Reverse implementation of encode for testing"""
-        if not len(value) == 1:
-            raise ValueError(
-                "Only single characters can be provided. A string of length"
-                f"{len(value)}: {value} was provided."
-            )
-
-        # find the position of the character in the alphabet
-        position: int = MarkTwo._alphabet.index(value)
-
-        # decrement this position by the value of the wheel, looping around
-        # to the start if the number is bigger than the number of characters
-        new_position: int = (position - wheel_one + 2 * wheel_two) % len(
-            MarkTwo._alphabet
-        )
-
-        # return the character at the new position
-        return MarkTwo._alphabet[new_position]
-
-    @classmethod
-    def _decode_string(cls, wheel_one: int, wheel_two: int, string: str):
-        """Reverse implementation of encode_string for testing"""
-
-        def decode(value: str):
-            nonlocal wheel_one, wheel_two
-            return cls._decode(wheel_one, wheel_two, value)
-
-        return "".join(list(map(decode, string)))
+        assert under_test.encode("abc") == "STU"

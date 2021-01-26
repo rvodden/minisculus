@@ -1,10 +1,10 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 from typing import List
 
 from pydantic import validate_arguments
 
 
-class AbstractWheel(ABC):
+class Wheel(ABC):
     """Encapsulates the common functionality of all wheels.
 
     A wheel is an encryption device which takes a list of numbers,
@@ -33,16 +33,50 @@ class AbstractWheel(ABC):
         self._factor = 1
 
     @validate_arguments
-    def process(self, idxs: List[int]) -> int:
+    def encode(self, idx: int) -> int:
         """Implements a wheel on a MARK machine.
 
-        ADDS to the index TWO TIMES the PREVIOUS LETTER'S position in the machine's
-        alphabet. Note that the third wheel's initial position starts at 0.
+        Args:
+            idx: the list of indexes to encode
+
+        Returns:
+            the encoded index
+        """
+        return self._encode(idx)
+
+    @abstractmethod
+    def _encode(self, idx: int) -> int:
+        pass
+
+    @validate_arguments
+    def decode(self, idx: int) -> int:
+        """Performs the inverse action of the wheels encode function.
 
         Args:
-            idxs: the list of indexes to encrypt
+            idx: the list of indexes to decode
 
-        Returns: the encrypted index
+        Returns:
+            the decoded index
+        """
+        return self._decode(idx)
+
+    @abstractmethod
+    def _decode(self, idx: int) -> int:
+        pass
+
+    def post_encode(self, idxs: List[int]) -> None:
+        """Called by the WheelChain after encoding has complete.
+
+        Args:
+            idxs: the list of indexes
+        """
+        pass
+
+    def post_decode(self, idxs: List[int]) -> None:
+        """Called by the WheelChain after decoding has complete.
+
+        Args:
+            idxs: the list of indexes
         """
         pass
 
@@ -64,9 +98,9 @@ class AbstractWheel(ABC):
         Args:
             value: the value to set the wheel to.
         """
-        self._value = self._validate_wheel_setting(value)
+        self._value = self._validate_wheel_value(value)
 
-    def set_value(self, value: int) -> "AbstractWheel":
+    def set_value(self, value: int) -> "Wheel":
         """Set the value of the wheel.
 
         Args:
@@ -77,6 +111,15 @@ class AbstractWheel(ABC):
         """
         self.value = value
         return self
+
+    @validate_arguments
+    def _validate_wheel_value(self, value: int) -> int:
+        if not self._min_value <= value <= self._max_value:
+            raise ValueError(
+                f"Initial wheel setting must be between {self._min_value}"
+                f" and {self._max_value}. {value} was provided."
+            )
+        return value
 
     @property
     @validate_arguments
@@ -98,15 +141,6 @@ class AbstractWheel(ABC):
         """
         return self._max_value
 
-    @validate_arguments
-    def _validate_wheel_setting(self, value: int) -> int:
-        if not self._min_value <= value <= self._max_value:
-            raise ValueError(
-                f"Initial wheel setting must be between {self._min_value}"
-                f" and {self._max_value}. {value} was provided."
-            )
-        return value
-
     @property
     @validate_arguments
     def factor(self) -> int:
@@ -122,9 +156,9 @@ class AbstractWheel(ABC):
     def factor(self, factor: int):
         if factor == 0:
             raise ValueError("`factor` cannot be zero.")
-        self._factor = factor
+        self._factor = self._validate_wheel_factor(factor)
 
-    def set_factor(self, factor: int) -> "AbstractWheel":
+    def set_factor(self, factor: int) -> "Wheel":
         """Fluent call to set the factor.
 
         Args:
@@ -135,3 +169,12 @@ class AbstractWheel(ABC):
         """
         self.factor = factor
         return self
+
+    @validate_arguments
+    def _validate_wheel_factor(self, factor: int) -> int:
+        if (not -10 < factor < 10) or factor == 0:
+            raise ValueError(
+                f"Wheel factor must be between -9"
+                f" and 9 and cannot be zero. {factor} was provided."
+            )
+        return factor
