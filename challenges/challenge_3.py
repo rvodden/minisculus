@@ -1,4 +1,4 @@
-"""Entrypoint for challenge number 1"""
+"""Entrypoint for challenge number 3"""
 import json
 from requests import put
 from pprint import PrettyPrinter
@@ -12,9 +12,10 @@ pprint = PrettyPrinter().pprint
 
 def main():
     mark_four: MarkFour = MarkFour(4, 7)
-    encoded_string: str = mark_four.encode_string(
+    encoded_string: str = mark_four.encode(
         "The white cliffs of Alghero are visible at night"
     )
+    pprint(encoded_string)
     payload = {"answer": encoded_string}
 
     response = put(SUBMISSION_URL, data=json.dumps(payload).encode("UTF-8"))

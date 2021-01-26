@@ -2,11 +2,11 @@
 
 from pydantic import validate_arguments
 
-from minisculus._abstract_mark import AbstractMark
-from minisculus.wheel import IncrementalFactorWheel
+from minisculus._encoder import Encoder
+from minisculus.wheel import SimpleWheel
 
 
-class MarkOne(AbstractMark):
+class MarkOne(Encoder):
     """A virtual implementation of the MARK I enemy message encoding machine.
 
     Args:
@@ -15,5 +15,5 @@ class MarkOne(AbstractMark):
 
     @validate_arguments
     def __init__(self, wheel_value: int) -> None:
-        wheel = IncrementalFactorWheel().set_value(wheel_value)
+        wheel = SimpleWheel().set_value(wheel_value)
         super().__init__([wheel])

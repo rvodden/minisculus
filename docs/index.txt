@@ -1,0 +1,13 @@
+======================
+ Minisculus Challenge
+======================
+
+Contents
+========
+
+.. toctree::
+    :maxdepth: 1
+
+    API Documentation <modules>
+    Building and CI <ci>
+    Architecture <architecture>

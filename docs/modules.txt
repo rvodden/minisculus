@@ -1,0 +1,10 @@
+API Documentation
+=================
+
+.. automodule:: minisculus
+    :members:
+    :show-inheritance:
+
+.. automodule:: minisculus.wheel
+    :members:
+    :show-inheritance:

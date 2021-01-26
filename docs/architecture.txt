@@ -1,0 +1,93 @@
+============
+Architecture
+============
+
+*****************
+User Requirements
+*****************
+
+===== =========
+Ref   Statement
+===== =========
+US-01 The operator sets an encoder wheel to a value between 0 and 9 as pre-determined by standard operating protocols.
+US-02 They then type on a keyboard and the resulting encoded character is sent to the field, which is then decoded and the commands are carried out.
+US-03 The keyboard has the following set of characters (see original text for details)
+US-04 The MARK I functions by shifting the input character by the number shown on the wheel.
+US-05 The MARK II has a design evolved from the MARK I in that it still has a letter shifting first wheel, however, a second wheel has been added to further complicate the encoded message.
+US-06 The MARK II's second wheel is set the same way as the first, e.g. a 0-9 setting. The difference is that the second wheel shifts the characters in a REVERSE direction TWO TIMES the number shown on the wheel's setting.
+US-07 The MARK IV's third wheel is more complicated than the first two in that it's setting is based off the previously pressed character position. The machine shifts the letter based off the first two wheels, then it further ADDS to the index TWO TIMES the PREVIOUS LETTER'S position in the machine's alphabet.
+US-08 Note that the third wheel's initial position starts at 0.
+US-09 Your mission is to write a decryption function into your virtual machine so we can intercept the encoded messages and decode them.
+===== =========
+
+**********************
+Component Architecture
+**********************
+
+Class Diagram
+=============
+
+.. mermaid::
+
+    classDiagram
+        class Encoder
+        class MarkOne
+        class MarkTwo
+        class MarkFour
+        class WheelChain
+        class Wheel {
+            <<abstract>>
+            encode()
+            decode()
+            _encode()*
+            _decode()*
+        }
+        class SimpleWheel {
+            _encode()
+            _decode()
+        }
+        class StatefulWheel {
+            _encode()
+            _decode()
+        }
+        MarkOne --|> Encoder
+        MarkTwo --|> Encoder
+        MarkFour --|> Encoder
+        Encoder "1" --* "1" WheelChain
+        WheelChain "1" --* "1..*" Wheel
+        OptimizedWheelChain --|> WheelChain
+        SimpleWheel --|> Wheel
+        StatefulWheel --|> SimpleWheel
+
+Class Catalogue
+===============
+
+=================== =======
+Class               Concern
+=================== =======
+Wheel               Encodes a single index value.
+WheelChain          Passes an index to a list of wheels in sequence for encoding.
+SimpleWheel         A wheel which encodes an index by adding the wheel value multiplied by a factor.
+OptimizedWheelChain The operation of consecutive ``SimpleWheel``s can be exactly matched by a single SimpleWheel of a different size and with a factor of 1 (if negative values are permitted).
+State Wheel         An evolution of the Simple Wheel which, subsequent to any encoding operation sets the value of the wheel to the value of the index (at the start of the wheel chain) which was encoded.
+Encoder             Breaks a string into a series of indexes to be processed by a wheel chain. It then reconstructs the sequence of encoded indexes back into a string.
+=================== =======
+
+***********
+Assumptions
+***********
+
+The specification of the MARK machines is missing a few pieces of information
+which are necessary to write secure code. In particular there is no information
+about some of the limits. These assumptions can be revisited as the challenges
+come to fruition should any of them prove to be invalid. Some of these
+assumptions are necessary as a result of the system design and are not inherent
+to the problem as stated (e.g. wheel number limits and factor limits).
+
+==== ==========
+Ref  Assumption
+==== ==========
+A-01 Messages to be encoded and decoded will not be more than 256 characters.
+A-02 No MARK machine will have more than 10 wheels.
+A-03 The factor a wheel is configured to will be strictly > -10 and < 10. A wheel with a factor of zero makes no sense, so this value will also be excluded.
+==== ==========

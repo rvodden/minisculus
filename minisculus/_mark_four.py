@@ -1,10 +1,10 @@
 from pydantic import validate_arguments
 
-from minisculus._abstract_mark import AbstractMark
-from minisculus.wheel import IncrementalFactorWheel, StateFactorWheel
+from minisculus._encoder import Encoder
+from minisculus.wheel import SimpleWheel, StatefulWheel
 
 
-class MarkFour(AbstractMark):
+class MarkFour(Encoder):
     """The MARKIV is based on the MARKII and has three wheels.
 
     The MARK IV's third wheel is more complicated than the first two in that it's
@@ -17,7 +17,7 @@ class MarkFour(AbstractMark):
 
     @validate_arguments
     def __init__(self, wheel1_value: int, wheel2_value: int) -> None:
-        wheel1 = IncrementalFactorWheel().set_value(wheel1_value)
-        wheel2 = IncrementalFactorWheel().set_value(wheel2_value).set_factor(-2)
-        wheel3 = StateFactorWheel(0, len(self._alphabet)).set_value(0).set_factor(2)
+        wheel1 = SimpleWheel().set_value(wheel1_value)
+        wheel2 = SimpleWheel().set_value(wheel2_value).set_factor(-2)
+        wheel3 = StatefulWheel().set_factor(2)
         super().__init__([wheel1, wheel2, wheel3])

@@ -7,8 +7,18 @@ try:
 except PackageNotFoundError:
     pass
 
+from minisculus._bruteforce import BruteForce
+from minisculus._encoder import Encoder
 from minisculus._mark_four import MarkFour
 from minisculus._mark_one import MarkOne
 from minisculus._mark_two import MarkTwo
 
-__all__ = ["MarkOne", "MarkTwo", "MarkFour"]
+__all__ = [
+    "BruteForce",
+    "Decoder",
+    "DecoderBuilder",
+    "Encoder",
+    "MarkOne",
+    "MarkTwo",
+    "MarkFour",
+]

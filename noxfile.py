@@ -4,13 +4,14 @@ import nox
 from nox.sessions import Session
 import nox_poetry.patch  # noqa: F401
 
-nox.options.sessions = "lint", "safety", "tests"
+nox.options.sessions = "lint", "safety", "tests", "bdd"
 nox.options.reuse_existing_virtualenvs = False
 locations = "minisculus", "tests", "noxfile.py"
 
 
-@nox.session(python=["3.8"])
+@nox.session(python="3.8")
 def lint(session: Session) -> None:
+    """Lints the code."""
     args = session.posargs or locations
     session.install(
         "darglint",
@@ -25,24 +26,27 @@ def lint(session: Session) -> None:
     session.run("flake8", *args)
 
 
-@nox.session(python=["3.8"])
+@nox.session(python=["3.8", "3.9"])
 def tests(session: Session) -> None:
+    """Runs the test harness."""
     session.install(".")
     session.install("pytest", "coverage[toml]", "hypothesis", "pytest-cov")
     session.run("poetry", "install", external=True)
     session.run("pytest", "--cov")
 
 
-@nox.session(python="3.8")
-def coverage(session: Session) -> None:
-    """Upload coverage data."""
-    session.install("coverage[toml]", "codecov")
-    session.run("coverage", "xml", "--fail-under=0")
-    session.run("codecov", *session.posargs)
+@nox.session(python=["3.8"])
+def bdd(session: Session) -> None:
+    """Runs the bdd features."""
+    session.install(".")
+    session.install("behave")
+    session.install("pyhamcrest")
+    session.run("behave")
 
 
 @nox.session(python="3.8")
 def black(session: Session) -> None:
+    """Reformats code to be in black."""
     args = session.posargs or locations
     session.install("black", "blackdoc")
     session.run("black", *args)
@@ -51,6 +55,7 @@ def black(session: Session) -> None:
 
 @nox.session(python="3.8")
 def safety(session: Session) -> None:
+    """Checks libraries for known vulnerabilities."""
     with tempfile.NamedTemporaryFile() as requirements:
         session.run(
             "poetry",
@@ -63,3 +68,18 @@ def safety(session: Session) -> None:
         )
         session.install("safety")
         session.run("safety", "check", f"--file={requirements.name}", "--full-report")
+
+
+@nox.session(python="3.8")
+def docs(session: Session) -> None:
+    """Build the documentation."""
+    session.install(".")
+    session.install(
+        "auto-behave",
+        "sphinx",
+        "sphinx-autodoc-typehints",
+        "sphinx-rtd-theme",
+        "sphinxcontrib.mermaid",
+        "six",
+    )
+    session.run("sphinx-build", "docs", "docs/_build")
